@@ -1,17 +1,37 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
+import { getRedirectResult } from 'firebase/auth'
 import './signin.styles.scss'
 import CustomButton from '../custom-button/CustomButton'
 import FormInput from '../form-input/FormInput'
-import { googleSignIn, createUserDocumentFromAuth } from '../../utils/firebase/firebase.utils'
+import {auth, googleSignIn, googleSignInRedirect, emailSignInRedirect, createUserDocumentFromAuth } from '../../utils/firebase/firebase.utils'
 
 const SignIn = () => {
     const [email, setEmail] = useState()
     const [password, setPassword] = useState()
 
+      // saving the data for when the user change url to go to accounts.google sign up
+    const redirectResults = async() => {
+        const response = await getRedirectResult(auth)
+        
+        if(response){
+            const userDocRef = createUserDocumentFromAuth(response.user)
+        }
+    }
+
+    useEffect(() => {
+        redirectResults()
+    },[]) // empty array run this function once when the component mounts for first time
+
+        //the google sign in method uses POP sign in
     const logGoogleUserIn = async() => {
        const {user} = await googleSignIn()   //destructuring the user object from the API response
        const userDocRef = createUserDocumentFromAuth(user)
        console.log(userDocRef) 
+    }
+        //the logEmailUser method uses redirect
+    const logEmailUser = async() => {
+        const {user} = await emailSignInRedirect()
+        const userDocRef = createUserDocumentFromAuth(user)
     }
 
  
@@ -31,18 +51,7 @@ const SignIn = () => {
     }
 
 
- /*   googleHandler = async () => {
-        provider.setCustomParameters({ prompt: 'select_account' });
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                console.log(result)
-            })
-            .catch((error) => {
-                console.log(error)
-            });
-    };*/
 
-    
         return(
             <div className='sign-in'>
                     <h2 className='title'>I already have an account</h2>
@@ -57,8 +66,9 @@ const SignIn = () => {
                      </form>
                 
                 <div className='buttons-group'>
-                  <CustomButton type='submit' onClick={logGoogleUserIn}>Sign In</CustomButton>
-                  <CustomButton isGoogleSignin> Sign In With Google </CustomButton> 
+                  <CustomButton type='submit' onClick={logGoogleUserIn}> Google Pop up</CustomButton>
+                  <CustomButton onClick={googleSignInRedirect}>  Google Redirect </CustomButton>
+                  <CustomButton onClick={logEmailUser}>  Email Redirect </CustomButton> 
                 </div>              
             </div>
         )
