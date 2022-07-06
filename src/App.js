@@ -2,8 +2,7 @@ import './App.css';
 import {Route, Routes} from 'react-router-dom'
 import Home from './pages/Home';
 import Header from './components/header/Header';
-import SignIn from './components/signin/SignIn';
-import SignUp from './components/sign-up/SignUp';
+import Authentication from './pages/authentication/Authentication';
 const Shop = () => {
   return(
     <h1>I am Shop Page</h1>
@@ -16,8 +15,7 @@ const App = () =>  {
       <Route path='/' element={<Header/>}>
         <Route index element={<Home/>}/>
         <Route path='shop' element={<Shop/>}/>
-        <Route path='sign-in' element={<SignIn/>}/>
-        <Route path='sign-up' element={<SignUp/>}/>
+        <Route path='authentication' element={<Authentication/>}/>
       </Route>      
     </Routes>
     )

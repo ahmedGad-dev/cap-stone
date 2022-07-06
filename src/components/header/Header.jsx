@@ -12,8 +12,7 @@ const Header = ()=> {
         </Link>
         <div className="nav-links-container">
           <Link className='nav-link' to='/shop'>SHOP</Link>
-          <Link className='nav-link' to='/sign-in'>Sign In</Link>
-          <Link className='nav-link' to='/sign-up'>Sign Up</Link>
+          <Link className='nav-link' to='/authentication'>Sign In</Link>
         </div>
       </div>
       <Outlet/>

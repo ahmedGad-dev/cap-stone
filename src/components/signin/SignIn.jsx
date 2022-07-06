@@ -3,57 +3,77 @@ import { getRedirectResult } from 'firebase/auth'
 import './signin.styles.scss'
 import CustomButton from '../custom-button/CustomButton'
 import FormInput from '../form-input/FormInput'
-import {auth, googleSignIn, googleSignInRedirect, emailSignInRedirect, createUserDocumentFromAuth } from '../../utils/firebase/firebase.utils'
+import {auth,
+        signInWithGooglePopup,
+     // googleSignInRedirect,
+        createUserDocumentFromAuth,       
+        signInAuthUserWithEmailAndPassword } from '../../utils/firebase/firebase.utils'
+
+
+const defaultFormFields = {
+    email: '',
+    password: ''
+}
 
 const SignIn = () => {
-    const [email, setEmail] = useState()
-    const [password, setPassword] = useState()
+       const [formFields, setFormFields] = useState(defaultFormFields)
+       const {email, password} = formFields
+
+
+   //the google sign in method uses POP sign in
+   const SignInWithGoogle = async() => {
+       const {user} = await signInWithGooglePopup()   //destructuring the user object from the API response
+       await createUserDocumentFromAuth(user)
+    }
+
+    const resetDefaultFormFields = () => {
+        setFormFields(defaultFormFields)
+      }
 
       // saving the data for when the user change url to go to accounts.google sign up
-    const redirectResults = async() => {
-        const response = await getRedirectResult(auth)
-        
-        if(response){
-            const userDocRef = createUserDocumentFromAuth(response.user)
-        }
+    const redirectResults = async() =>{
+      const response = await getRedirectResult(auth)      
+      if(response){
+          await createUserDocumentFromAuth(response.user)
+      }
     }
 
     useEffect(() => {
         redirectResults()
     },[]) // empty array run this function once when the component mounts for first time
 
-        //the google sign in method uses POP sign in
-    const logGoogleUserIn = async() => {
-       const {user} = await googleSignIn()   //destructuring the user object from the API response
-       const userDocRef = createUserDocumentFromAuth(user)
-       console.log(userDocRef) 
-    }
-        //the logEmailUser method uses redirect
-    const logEmailUser = async() => {
-        const {user} = await emailSignInRedirect()
-        const userDocRef = createUserDocumentFromAuth(user)
+   const handleSubmit = async(event) => {
+        event.preventDefault() 
+        try{
+            const response = await signInAuthUserWithEmailAndPassword(email, password)
+            resetDefaultFormFields()
+        } catch (error) {
+            switch(error.code){
+                case 'auth/wrong-password':
+                     alert('Incoorect password, please try again');
+                     break     //break makes it that once an error is found the switch will not try to run the rest of switch code
+                case 'auth/user-not-found':
+                     alert('No user associated with this email');
+                     break
+                default: 
+                     console.log(error)
+            }     
+        }
     }
 
- 
-   const handleSubmit = (event) => {
-        event.preventDefault() 
-    }
 // Makes it dynamically set for email or password as the name will be replaced with email or password and the value will be the state
     const handleChange = (event) => {
         event.preventDefault()
-        const {value, name} = event.target
-        setEmail({
+        const {name, value} = event.target 
+        setFormFields({
+            ...formFields,
             [name]: value
-        })
-        setPassword({
-            [name]: value
-        })
-    }
-
-
-
+          }) 
+        }
+ 
         return(
             <div className='sign-in'>
+                    <h1>Sign In</h1>
                     <h2 className='title'>I already have an account</h2>
                     <span>Sign in using email and password</span>
                     <form onSubmit={handleSubmit}>
@@ -66,25 +86,13 @@ const SignIn = () => {
                      </form>
                 
                 <div className='buttons-group'>
-                  <CustomButton type='submit' onClick={logGoogleUserIn}> Google Pop up</CustomButton>
-                  <CustomButton onClick={googleSignInRedirect}>  Google Redirect </CustomButton>
-                  <CustomButton onClick={logEmailUser}>  Email Redirect </CustomButton> 
-                </div>              
+                   <CustomButton  type='submit'> Sign In </CustomButton> 
+                   <CustomButton  type='button' buttonType='google' onClick={SignInWithGoogle}> Google Sign In </CustomButton>              
+                </div>  
+    
             </div>
         )
-    
-}
+    }
 
 export default SignIn
 
-/*
-
-<form onSubmit={this.handleSubmit}>
-                    <FormInput type='email' name='email' value={this.state.email} handleChange={this.handleChange} label='Email' required /> 
-                                
-                    <FormInput type='password' name='Password' value={this.state.password}
-                     handleChange={this.handleChange} 
-                     label='password'
-                     required/>                              
-                </form>
-                */
