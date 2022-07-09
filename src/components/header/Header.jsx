@@ -2,8 +2,17 @@ import React, {Fragment} from 'react'
 import './header.styles.scss'
 import { Outlet, Link } from 'react-router-dom'
 import { ReactComponent as Logo } from '../../assets/crown.svg'
+import { useUserContext } from '../../context/user.context'
+import { signOutUser } from '../../utils/firebase/firebase.utils'
 
 const Header = ()=> {
+  const {currentUser, setCurrentUser} = useUserContext()
+
+  const signOutHandler = async() => {
+     await signOutUser()
+     setCurrentUser(null)
+  }
+  
   return (
     <Fragment>
       <div className='navigation'>
@@ -12,7 +21,10 @@ const Header = ()=> {
         </Link>
         <div className="nav-links-container">
           <Link className='nav-link' to='/shop'>SHOP</Link>
-          <Link className='nav-link' to='/authentication'>Sign In</Link>
+            {currentUser?(
+              <span className="nav-link" onClick={signOutHandler}>SIGN OUT</span>) : 
+              (<Link className='nav-link' to='/authentication'> SIGN IN </Link>) 
+            }         
         </div>
       </div>
       <Outlet/>

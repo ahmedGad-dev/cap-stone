@@ -9,7 +9,6 @@ import {auth,
         createUserDocumentFromAuth,       
         signInAuthUserWithEmailAndPassword } from '../../utils/firebase/firebase.utils'
 
-
 const defaultFormFields = {
     email: '',
     password: ''
@@ -20,10 +19,11 @@ const SignIn = () => {
        const {email, password} = formFields
 
 
+
+
    //the google sign in method uses POP sign in
    const SignInWithGoogle = async() => {
-       const {user} = await signInWithGooglePopup()   //destructuring the user object from the API response
-       await createUserDocumentFromAuth(user)
+       await signInWithGooglePopup()         
     }
 
     const resetDefaultFormFields = () => {
@@ -45,7 +45,7 @@ const SignIn = () => {
    const handleSubmit = async(event) => {
         event.preventDefault() 
         try{
-            const response = await signInAuthUserWithEmailAndPassword(email, password)
+            const {user} = await signInAuthUserWithEmailAndPassword(email, password)
             resetDefaultFormFields()
         } catch (error) {
             switch(error.code){
@@ -77,19 +77,18 @@ const SignIn = () => {
                     <h2 className='title'>I already have an account</h2>
                     <span>Sign in using email and password</span>
                     <form onSubmit={handleSubmit}>
-                      <FormInput type='email' name='email' value={email} handleChange={handleChange} label='Email' required /> 
+                      <FormInput type='email' name='email' value={email} onChange={handleChange} label='Email' required /> 
                                 
-                      <FormInput type='password' name='Password' value={password}
-                        handleChange={handleChange} 
+                      <FormInput type='password' name='password' value={password}
+                        onChange={handleChange} 
                         label='password'
-                        required/>                              
-                     </form>
-                
-                <div className='buttons-group'>
-                   <CustomButton  type='submit'> Sign In </CustomButton> 
-                   <CustomButton  type='button' buttonType='google' onClick={SignInWithGoogle}> Google Sign In </CustomButton>              
-                </div>  
-    
+                        required/> 
+
+                      <div className='buttons-group'>
+                       <CustomButton  type='submit'> Sign In </CustomButton> 
+                       <CustomButton  type='button' buttonType='google' onClick={SignInWithGoogle}> Google Sign In </CustomButton>              
+                      </div>  
+                    </form>          
             </div>
         )
     }
