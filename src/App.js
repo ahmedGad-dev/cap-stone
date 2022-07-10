@@ -1,13 +1,9 @@
 import './App.css';
 import {Route, Routes} from 'react-router-dom'
-import Home from './pages/Home';
+import Home from './pages/home/Home';
 import Header from './components/header/Header';
 import Authentication from './pages/authentication/Authentication';
-const Shop = () => {
-  return(
-    <h1>I am Shop Page</h1>
-  )
-}
+import Shop from './pages/shop/Shop';
 
 const App = () =>  {
   return( 
