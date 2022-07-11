@@ -9,7 +9,7 @@ import CartIcon from '../cart-icon/CartIcon'
 import CartDropdown from '../cart-dropdown/CartDropDown'
 const Header = ()=> {
   const {currentUser, setCurrentUser} = useUserContext()
-  const {cartOpen} = useContext(CartContext)
+  const {cartOpen, cartItems} = useContext(CartContext)
 
   const signOutHandler = async() => {
      await signOutUser()
@@ -30,7 +30,7 @@ const Header = ()=> {
             }   
            <CartIcon/>
         </div>
-           {cartOpen? <CartDropdown/> : null}
+           {cartOpen? <CartDropdown cartItems={cartItems}/> : null}
       </div>
       <Outlet/>
     </Fragment>   
