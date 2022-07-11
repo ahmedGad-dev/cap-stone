@@ -11,36 +11,53 @@ const addCartItem = (cartItems, productToAdd) => {
     return[...cartItems, {...productToAdd, quantity: 1}]    
 }
 
+const decreaseItemFromCart = (cartItems, productToRemove) => {
+  const existingCartItem = cartItems.find(cartItem => cartItem.id === productToRemove.id) 
+
+  if(existingCartItem.quantity === 1){
+     return cartItems.filter(cartItem => cartItem.id !== productToRemove.id)
+  }
+  
+  return cartItems.map(cartItem => cartItem.id === productToRemove.id ?
+        {...cartItem, quantity: cartItem.quantity - 1} :
+         cartItem )
+}
+
+
+// clear the cart item from cart
+const clearItem = (cartItems, product) => {
+  return cartItems.filter(cartItem => cartItem.id !== product.id )
+}
+
 export const CartContext = createContext({
    cartOpen: false,
    setCartOpen: () => {},
    cartItems: [],
    addItemToCart: () => {},
    quantity: 0,
-   removeItem: () => {}
+   removeItemFromCart: () => {},
+   clearItemFromCart: () => {},
+   cartTotal: 0,
 })
 
 export const CartProvider = ({children})  => {
   const[cartOpen, setCartOpen] = useState(false)
   const[cartItems, setCartItems] = useState([])
   const[quantity, setQuantitiy] = useState(0)
+  const[cartTotal, setCartTotal] = useState()
 
   const addItemToCart = (productToAdd) => {
     setCartItems(addCartItem(cartItems, productToAdd ))
   }
 
-  const increaseItemQuantitiy = () => {
-
+  const removeItemFromCart = (product) => {
+    setCartItems(decreaseItemFromCart(cartItems, product))
   }
 
-  const decreaseItemQuantitiy = () => {
-     
+  const clearItemFromCart = (product) => {
+    setCartItems(clearItem(cartItems, product))
   }
-
-  const removeItem = (id) => {
-    return cartItems.filter(item => item.id !== id)
-  }
-
+  
 
   useEffect(() => {
     const newQuantity = cartItems.reduce((total, nextItem) => {
@@ -48,6 +65,16 @@ export const CartProvider = ({children})  => {
     }, 0)
     setQuantitiy(newQuantity)
   }, [cartItems])
+
+
+  useEffect(() => {
+    const newTotal = cartItems.reduce((total, nextItem) => {
+      return total + nextItem.quantity * nextItem.price
+    }, 0)
+    setCartTotal(newTotal)
+  }, [cartItems])
+
+
  
   return(
     <CartContext.Provider value={{
@@ -56,7 +83,9 @@ export const CartProvider = ({children})  => {
         addItemToCart,
         cartItems,
         quantity,
-        removeItem
+        removeItemFromCart,
+        clearItemFromCart,
+        cartTotal
     }}>
         {children}
     </CartContext.Provider>
